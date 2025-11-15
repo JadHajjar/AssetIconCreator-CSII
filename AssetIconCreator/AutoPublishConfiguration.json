@@ -1,0 +1,7 @@
+{
+  "ModName": "Asset Icon Creator",
+  "ThumbnailUrl": "https://imgur.com/uHq6x1N.png",
+  "PublishConfigurationFile": "Properties\\PublishConfiguration.xml",
+  "ChangelogFile": "Changelog.json",
+  "Color": "204, 145, 61"
+}

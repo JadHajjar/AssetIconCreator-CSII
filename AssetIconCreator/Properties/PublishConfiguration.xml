@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Publish>
+  <ModId Value="105288" />
+  <DisplayName Value="Asset Icon Creator" />
+  <ShortDescription Value="Easily create icons for your assets with a click of a button." />
+  <LongDescription>
+# Asset Icon Creator
+Easily create icons for your assets with a click of a button!
+
+From props, to buildings, and brands' billboards and signs. Create the perfect icons within seconds for your assets.
+
+
+
+
+## How to use
+While in the Editor, or in-game, place the asset you want to create an icon for, and click on the "Asset Icon Creator" button in the Asset Editor's toolbar, or use the Hot-Key.
+
+Then click on the asset and Asset Icon Creator will take care of the rest. You'll then see a preview of the icon on the bottom left of your screen.
+
+
+
+
+## Custom Styles
+In Asset Icon Library's settings page, you can change the style of building icons from the selection of:
+* Colored and no props
+* White and no props
+* Colored with props
+
+
+
+
+## Custom Options
+Be sure to check the mod's options for more customization and extra features.
+</LongDescription>
+  <Thumbnail Value="Properties/Thumbnail.png" />
+  <Screenshot Value="Properties/Screenshot01.jpg" />
+  <Screenshot Value="Properties/Screenshot02.jpg" />
+  <Screenshot Value="Properties/Screenshot03.jpg" />
+  <Screenshot Value="Properties/Screenshot04.jpg" />
+  <Tag Value="Code Mod" />
+  <ModVersion Value="1.2" />
+  <GameVersion Value="1.3.*" />
+  <ChangeLog>
+# v1.2
+Miscellaneous Hotfix
+</ChangeLog>
+  <ExternalLink Type="discord" Url="https://discord.gg/E4k8ZEtRxd" />
+  <ExternalLink Type="github" Url="https://github.com/JadHajjar/AssetIconCreator-CSII" />
+  <ExternalLink Type="patreon" Url="https://www.patreon.com/tdwsvillage" />
+</Publish>

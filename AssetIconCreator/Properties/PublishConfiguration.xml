@@ -38,11 +38,12 @@ Be sure to check the mod's options for more customization and extra features.
   <Screenshot Value="Properties/Screenshot03.jpg" />
   <Screenshot Value="Properties/Screenshot04.jpg" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="1.2" />
+  <ModVersion Value="1.3" />
   <GameVersion Value="1.3.*" />
   <ChangeLog>
-# v1.2
-Miscellaneous Hotfix
+# v1.3
+## Hotfix
+* Compatibility with patch 1.4.2f1.
 </ChangeLog>
   <ExternalLink Type="discord" Url="https://discord.gg/E4k8ZEtRxd" />
   <ExternalLink Type="github" Url="https://github.com/JadHajjar/AssetIconCreator-CSII" />

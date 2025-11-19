@@ -118,7 +118,7 @@ namespace AssetIconCreator
 			base.OnStartRunning();
 
 			selectedPrefab = null;
-			//applyAction.enabled = true;
+			applyAction.shouldBeEnabled = true;
 		}
 
 		protected override void OnStopRunning()
@@ -126,7 +126,7 @@ namespace AssetIconCreator
 			base.OnStopRunning();
 
 			selectedPrefab = null;
-			//applyAction.enabled = false;
+			applyAction.shouldBeEnabled = false;
 		}
 
 		public override void InitializeRaycast()
@@ -344,7 +344,7 @@ namespace AssetIconCreator
 			definitions.m_PrefabPlaceholderElements = SystemAPI.GetBufferLookup<PlaceholderObjectElement>(true);
 			definitions.m_PrefabRequirementElements = SystemAPI.GetBufferLookup<ObjectRequirementElement>(true);
 			definitions.m_PrefabServiceUpgradeBuilding = SystemAPI.GetBufferLookup<ServiceUpgradeBuilding>(true);
-			definitions.m_WaterSurfaceData = _waterSystem.GetSurfaceData(out var _);
+			//definitions.m_WaterSurfaceData = _waterSystem.GetSurfaceData(out var _);
 			definitions.m_TerrainHeightData = _terrainSystem.GetHeightData();
 			definitions.m_CommandBuffer = _toolOutputBarrier.CreateCommandBuffer();
 			definitions.Execute();

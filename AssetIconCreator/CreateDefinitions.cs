@@ -141,8 +141,6 @@ namespace AssetIconCreator
 		[ReadOnly]
 		public BufferLookup<ServiceUpgradeBuilding> m_PrefabServiceUpgradeBuilding;
 		[ReadOnly]
-		public WaterSurfaceData m_WaterSurfaceData;
-		[ReadOnly]
 		public TerrainHeightData m_TerrainHeightData;
 		public EntityCommandBuffer m_CommandBuffer;
 
@@ -768,10 +766,10 @@ namespace AssetIconCreator
 					var num = TerrainUtils.SampleHeight(ref m_TerrainHeightData, transform3.m_Position);
 					if ((componentData3.m_Flags & Game.Objects.PlacementFlags.Hovering) != 0)
 					{
-						var num2 = WaterUtils.SampleHeight(ref m_WaterSurfaceData, ref m_TerrainHeightData, transform3.m_Position);
-						num2 += componentData3.m_PlacementOffset.y;
-						component2.m_Elevation = math.max(0f, num2 - num);
-						num = math.max(num, num2);
+						//var num2 = WaterUtils.SampleHeight(ref m_WaterSurfaceData, ref m_TerrainHeightData, transform3.m_Position);
+						//num2 += componentData3.m_PlacementOffset.y;
+						//component2.m_Elevation = math.max(0f, num2 - num);
+						//num = math.max(num, num2);
 					}
 					else if ((componentData3.m_Flags & (Game.Objects.PlacementFlags.Shoreline | Game.Objects.PlacementFlags.Floating)) == 0)
 					{
@@ -779,17 +777,17 @@ namespace AssetIconCreator
 					}
 					else
 					{
-						var num3 = WaterUtils.SampleHeight(ref m_WaterSurfaceData, ref m_TerrainHeightData, transform3.m_Position, out float waterDepth);
-						if (waterDepth >= 0.2f)
-						{
-							num3 += componentData3.m_PlacementOffset.y;
-							if ((componentData3.m_Flags & Game.Objects.PlacementFlags.Floating) != 0)
-							{
-								component2.m_Elevation = math.max(0f, num3 - num);
-							}
+						//var num3 = WaterUtils.SampleHeight(ref m_WaterSurfaceData, ref m_TerrainHeightData, transform3.m_Position, out float waterDepth);
+						//if (waterDepth >= 0.2f)
+						//{
+						//	num3 += componentData3.m_PlacementOffset.y;
+						//	if ((componentData3.m_Flags & Game.Objects.PlacementFlags.Floating) != 0)
+						//	{
+						//		component2.m_Elevation = math.max(0f, num3 - num);
+						//	}
 
-							num = math.max(num, num3);
-						}
+						//	num = math.max(num, num3);
+						//}
 					}
 
 					transform3.m_Position.y = num;
@@ -813,137 +811,137 @@ namespace AssetIconCreator
 		private void CreateSubNet(Entity netPrefab, Entity lanePrefab, Bezier4x3 curve, int2 nodeIndex, int2 parentMesh, CompositionFlags upgrades, NativeList<float4> nodePositions, Transform parentTransform, OwnerDefinition ownerDefinition, NativeList<ClearAreaData> clearAreas, BuildingUtils.LotInfo lotInfo, bool hasLot, ref Random random)
 		{
 			return;
-			m_PrefabNetGeometryData.TryGetComponent(netPrefab, out var componentData);
-			var component = default(CreationDefinition);
-			component.m_Prefab = netPrefab;
-			component.m_SubPrefab = lanePrefab;
-			component.m_RandomSeed = random.NextInt();
-			var flag = parentMesh.x >= 0 && parentMesh.y >= 0;
-			var component2 = default(NetCourse);
-			if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
-			{
-				curve.y = default;
-				var curve2 = default(Curve);
-				curve2.m_Bezier = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
-				var curve3 = curve2;
-				component2.m_Curve = NetUtils.AdjustPosition(curve3, fixedStart: false, linearMiddle: false, fixedEnd: false, ref m_TerrainHeightData, ref m_WaterSurfaceData).m_Bezier;
-			}
-			else if (!flag)
-			{
-				var curve2 = default(Curve);
-				curve2.m_Bezier = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
-				var curve4 = curve2;
-				var flag2 = parentMesh.x >= 0;
-				var flag3 = parentMesh.y >= 0;
-				flag = flag2 || flag3;
-				if ((componentData.m_Flags & Game.Net.GeometryFlags.FlattenTerrain) != 0)
-				{
-					if (hasLot)
-					{
-						component2.m_Curve = NetUtils.AdjustPosition(curve4, flag2, flag, flag3, ref lotInfo).m_Bezier;
-						component2.m_Curve.a.y += curve.a.y;
-						component2.m_Curve.b.y += curve.b.y;
-						component2.m_Curve.c.y += curve.c.y;
-						component2.m_Curve.d.y += curve.d.y;
-					}
-					else
-					{
-						component2.m_Curve = curve4.m_Bezier;
-					}
-				}
-				else
-				{
-					component2.m_Curve = NetUtils.AdjustPosition(curve4, flag2, flag, flag3, ref m_TerrainHeightData).m_Bezier;
-					component2.m_Curve.a.y += curve.a.y;
-					component2.m_Curve.b.y += curve.b.y;
-					component2.m_Curve.c.y += curve.c.y;
-					component2.m_Curve.d.y += curve.d.y;
-				}
-			}
-			else
-			{
-				component2.m_Curve = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
-			}
+			//m_PrefabNetGeometryData.TryGetComponent(netPrefab, out var componentData);
+			//var component = default(CreationDefinition);
+			//component.m_Prefab = netPrefab;
+			//component.m_SubPrefab = lanePrefab;
+			//component.m_RandomSeed = random.NextInt();
+			//var flag = parentMesh.x >= 0 && parentMesh.y >= 0;
+			//var component2 = default(NetCourse);
+			//if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
+			//{
+			//	curve.y = default;
+			//	var curve2 = default(Curve);
+			//	curve2.m_Bezier = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
+			//	var curve3 = curve2;
+			//	component2.m_Curve = NetUtils.AdjustPosition(curve3, fixedStart: false, linearMiddle: false, fixedEnd: false, ref m_TerrainHeightData, ref m_WaterSurfaceData).m_Bezier;
+			//}
+			//else if (!flag)
+			//{
+			//	var curve2 = default(Curve);
+			//	curve2.m_Bezier = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
+			//	var curve4 = curve2;
+			//	var flag2 = parentMesh.x >= 0;
+			//	var flag3 = parentMesh.y >= 0;
+			//	flag = flag2 || flag3;
+			//	if ((componentData.m_Flags & Game.Net.GeometryFlags.FlattenTerrain) != 0)
+			//	{
+			//		if (hasLot)
+			//		{
+			//			component2.m_Curve = NetUtils.AdjustPosition(curve4, flag2, flag, flag3, ref lotInfo).m_Bezier;
+			//			component2.m_Curve.a.y += curve.a.y;
+			//			component2.m_Curve.b.y += curve.b.y;
+			//			component2.m_Curve.c.y += curve.c.y;
+			//			component2.m_Curve.d.y += curve.d.y;
+			//		}
+			//		else
+			//		{
+			//			component2.m_Curve = curve4.m_Bezier;
+			//		}
+			//	}
+			//	else
+			//	{
+			//		component2.m_Curve = NetUtils.AdjustPosition(curve4, flag2, flag, flag3, ref m_TerrainHeightData).m_Bezier;
+			//		component2.m_Curve.a.y += curve.a.y;
+			//		component2.m_Curve.b.y += curve.b.y;
+			//		component2.m_Curve.c.y += curve.c.y;
+			//		component2.m_Curve.d.y += curve.d.y;
+			//	}
+			//}
+			//else
+			//{
+			//	component2.m_Curve = ObjectUtils.LocalToWorld(parentTransform.m_Position, parentTransform.m_Rotation, curve);
+			//}
 
-			var onGround = !flag || math.cmin(math.abs(curve.y.abcd)) < 2f;
-			if (ClearAreaHelpers.ShouldClear(clearAreas, component2.m_Curve, onGround))
-			{
-				return;
-			}
+			//var onGround = !flag || math.cmin(math.abs(curve.y.abcd)) < 2f;
+			//if (ClearAreaHelpers.ShouldClear(clearAreas, component2.m_Curve, onGround))
+			//{
+			//	return;
+			//}
 
-			var e = m_CommandBuffer.CreateEntity();
-			m_CommandBuffer.AddComponent(e, component);
-			m_CommandBuffer.AddComponent(e, default(Updated));
-			if (ownerDefinition.m_Prefab != Entity.Null)
-			{
-				m_CommandBuffer.AddComponent(e, ownerDefinition);
-			}
+			//var e = m_CommandBuffer.CreateEntity();
+			//m_CommandBuffer.AddComponent(e, component);
+			//m_CommandBuffer.AddComponent(e, default(Updated));
+			//if (ownerDefinition.m_Prefab != Entity.Null)
+			//{
+			//	m_CommandBuffer.AddComponent(e, ownerDefinition);
+			//}
 
-			component2.m_StartPosition.m_Position = component2.m_Curve.a;
-			component2.m_StartPosition.m_Rotation = NetUtils.GetNodeRotation(MathUtils.StartTangent(component2.m_Curve), parentTransform.m_Rotation);
-			component2.m_StartPosition.m_CourseDelta = 0f;
-			component2.m_StartPosition.m_Elevation = curve.a.y;
-			component2.m_StartPosition.m_ParentMesh = parentMesh.x;
-			if (nodeIndex.x >= 0)
-			{
-				if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
-				{
-					component2.m_StartPosition.m_Position.xz = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.x].xyz).xz;
-				}
-				else
-				{
-					component2.m_StartPosition.m_Position = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.x].xyz);
-				}
-			}
+			//component2.m_StartPosition.m_Position = component2.m_Curve.a;
+			//component2.m_StartPosition.m_Rotation = NetUtils.GetNodeRotation(MathUtils.StartTangent(component2.m_Curve), parentTransform.m_Rotation);
+			//component2.m_StartPosition.m_CourseDelta = 0f;
+			//component2.m_StartPosition.m_Elevation = curve.a.y;
+			//component2.m_StartPosition.m_ParentMesh = parentMesh.x;
+			//if (nodeIndex.x >= 0)
+			//{
+			//	if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
+			//	{
+			//		component2.m_StartPosition.m_Position.xz = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.x].xyz).xz;
+			//	}
+			//	else
+			//	{
+			//		component2.m_StartPosition.m_Position = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.x].xyz);
+			//	}
+			//}
 
-			component2.m_EndPosition.m_Position = component2.m_Curve.d;
-			component2.m_EndPosition.m_Rotation = NetUtils.GetNodeRotation(MathUtils.EndTangent(component2.m_Curve), parentTransform.m_Rotation);
-			component2.m_EndPosition.m_CourseDelta = 1f;
-			component2.m_EndPosition.m_Elevation = curve.d.y;
-			component2.m_EndPosition.m_ParentMesh = parentMesh.y;
-			if (nodeIndex.y >= 0)
-			{
-				if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
-				{
-					component2.m_EndPosition.m_Position.xz = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.y].xyz).xz;
-				}
-				else
-				{
-					component2.m_EndPosition.m_Position = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.y].xyz);
-				}
-			}
+			//component2.m_EndPosition.m_Position = component2.m_Curve.d;
+			//component2.m_EndPosition.m_Rotation = NetUtils.GetNodeRotation(MathUtils.EndTangent(component2.m_Curve), parentTransform.m_Rotation);
+			//component2.m_EndPosition.m_CourseDelta = 1f;
+			//component2.m_EndPosition.m_Elevation = curve.d.y;
+			//component2.m_EndPosition.m_ParentMesh = parentMesh.y;
+			//if (nodeIndex.y >= 0)
+			//{
+			//	if ((componentData.m_Flags & Game.Net.GeometryFlags.OnWater) != 0)
+			//	{
+			//		component2.m_EndPosition.m_Position.xz = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.y].xyz).xz;
+			//	}
+			//	else
+			//	{
+			//		component2.m_EndPosition.m_Position = ObjectUtils.LocalToWorld(parentTransform, nodePositions[nodeIndex.y].xyz);
+			//	}
+			//}
 
-			component2.m_Length = MathUtils.Length(component2.m_Curve);
-			component2.m_FixedIndex = -1;
-			component2.m_StartPosition.m_Flags |= CoursePosFlags.IsFirst;
-			component2.m_EndPosition.m_Flags |= CoursePosFlags.IsLast;
-			if (component2.m_StartPosition.m_Position.Equals(component2.m_EndPosition.m_Position))
-			{
-				component2.m_StartPosition.m_Flags |= CoursePosFlags.IsLast;
-				component2.m_EndPosition.m_Flags |= CoursePosFlags.IsFirst;
-			}
+			//component2.m_Length = MathUtils.Length(component2.m_Curve);
+			//component2.m_FixedIndex = -1;
+			//component2.m_StartPosition.m_Flags |= CoursePosFlags.IsFirst;
+			//component2.m_EndPosition.m_Flags |= CoursePosFlags.IsLast;
+			//if (component2.m_StartPosition.m_Position.Equals(component2.m_EndPosition.m_Position))
+			//{
+			//	component2.m_StartPosition.m_Flags |= CoursePosFlags.IsLast;
+			//	component2.m_EndPosition.m_Flags |= CoursePosFlags.IsFirst;
+			//}
 
-			if (ownerDefinition.m_Prefab == Entity.Null)
-			{
-				component2.m_StartPosition.m_Flags |= CoursePosFlags.FreeHeight;
-				component2.m_EndPosition.m_Flags |= CoursePosFlags.FreeHeight;
-			}
+			//if (ownerDefinition.m_Prefab == Entity.Null)
+			//{
+			//	component2.m_StartPosition.m_Flags |= CoursePosFlags.FreeHeight;
+			//	component2.m_EndPosition.m_Flags |= CoursePosFlags.FreeHeight;
+			//}
 
-			m_CommandBuffer.AddComponent(e, component2);
-			if (upgrades != default)
-			{
-				var upgraded = default(Upgraded);
-				upgraded.m_Flags = upgrades;
-				var component3 = upgraded;
-				m_CommandBuffer.AddComponent(e, component3);
-			}
+			//m_CommandBuffer.AddComponent(e, component2);
+			//if (upgrades != default)
+			//{
+			//	var upgraded = default(Upgraded);
+			//	upgraded.m_Flags = upgrades;
+			//	var component3 = upgraded;
+			//	m_CommandBuffer.AddComponent(e, component3);
+			//}
 
-			if (m_EditorMode)
-			{
-				var component4 = default(LocalCurveCache);
-				component4.m_Curve = curve;
-				m_CommandBuffer.AddComponent(e, component4);
-			}
+			//if (m_EditorMode)
+			//{
+			//	var component4 = default(LocalCurveCache);
+			//	component4.m_Curve = curve;
+			//	m_CommandBuffer.AddComponent(e, component4);
+			//}
 		}
 
 		private bool GetOwnerLot(Entity lotOwner, out BuildingUtils.LotInfo lotInfo)

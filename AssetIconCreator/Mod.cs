@@ -20,7 +20,7 @@ namespace AssetIconCreator
 		public static Texture2D Magenta { get; private set; }
 		public static Setting Settings { get; private set; }
 		public static string Id { get; } = nameof(AssetIconCreator);
-		public static string ContentFolder { get; } = Path.Combine(EnvPath.kUserDataPath, "ModsData", nameof(AssetIconCreator), "Temp");
+		public static string ContentFolder { get; } = Path.Combine(EnvPath.kUserDataPath, "ModsData", nameof(AssetIconCreator), "Generated Icons");
 
 		public void OnLoad(UpdateSystem updateSystem)
 		{
@@ -33,12 +33,11 @@ namespace AssetIconCreator
 
 				var contentDir = new DirectoryInfo(ContentFolder);
 
-				if (contentDir.Exists)
+				if (!contentDir.Exists)
 				{
-					contentDir.Delete(true);
+					contentDir.Create();
+					contentDir.Attributes |= FileAttributes.Hidden;
 				}
-
-				contentDir.Create();
 
 				File.Copy(Path.Combine(Path.GetDirectoryName(asset.path), "AIC_Icon.png"), Path.Combine(contentDir.FullName, "AIC_Icon.png"), true);
 
@@ -56,7 +55,7 @@ namespace AssetIconCreator
 			updateSystem.UpdateAt<AssetSetupToolSystem>(SystemUpdatePhase.ToolUpdate);
 			updateSystem.UpdateAt<AssetCreatorUISystem>(SystemUpdatePhase.UIUpdate);
 
-			GameManager.instance.RegisterUpdater(RegisterHostLocation);
+			MainThreadDispatcher.RegisterUpdater(RegisterHostLocation);
 		}
 
 		private void RegisterHostLocation()
@@ -69,13 +68,6 @@ namespace AssetIconCreator
 		public void OnDispose()
 		{
 			Log.Info(nameof(OnDispose));
-
-			var tempDir = new DirectoryInfo(ContentFolder);
-
-			if (tempDir.Exists)
-			{
-				tempDir.Delete(true);
-			}
 
 			if (Settings != null)
 			{

@@ -1,6 +1,32 @@
 [
   {
     "Stable": true,
+    "Version": "1.3.2",
+    "Date": "2026-01-17",
+    "ChangeGroups": [
+      {
+        "Name": "Changes",
+        "Changes": [
+          "Generated icons are now saved permanently to fix the situation where the assets' icon resets after restarting the game."
+        ]
+      }
+    ]
+  },
+  {
+    "Stable": true,
+    "Version": "1.3.1",
+    "Date": "2025-12-03",
+    "ChangeGroups": [
+      {
+        "Name": "Changes",
+        "Changes": [
+          "Compatibility with patch 1.5.2f1."
+        ]
+      }
+    ]
+  },
+  {
+    "Stable": true,
     "Version": "1.3",
     "Date": "2025-11-19",
     "ChangeGroups": [

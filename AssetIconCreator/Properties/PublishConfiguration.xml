@@ -38,12 +38,12 @@ Be sure to check the mod's options for more customization and extra features.
   <Screenshot Value="Properties/Screenshot03.jpg" />
   <Screenshot Value="Properties/Screenshot04.jpg" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="1.3" />
-  <GameVersion Value="1.3.*" />
+  <ModVersion Value="1.3.2" />
+  <GameVersion Value="1.5.*" />
   <ChangeLog>
-# v1.3
-## Hotfix
-* Compatibility with patch 1.4.2f1.
+# v1.3.2
+## Changes
+* Generated icons are now saved permanently to fix the situation where the assets' icon resets after restarting the game.
 </ChangeLog>
   <ExternalLink Type="discord" Url="https://discord.gg/E4k8ZEtRxd" />
   <ExternalLink Type="github" Url="https://github.com/JadHajjar/AssetIconCreator-CSII" />

@@ -163,7 +163,7 @@ namespace AssetIconCreator
 				return;
 			}
 
-			GameManager.instance.RegisterUpdater(() =>
+			MainThreadDispatcher.RegisterUpdater(() =>
 			{
 				Object.DestroyImmediate(texture2D);
 

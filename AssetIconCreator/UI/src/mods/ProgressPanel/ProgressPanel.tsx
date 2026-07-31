@@ -10,6 +10,7 @@ const inProcess$ = bindValue<boolean>(mod.id, "InProcess");
 const settingUp$ = bindValue<boolean>(mod.id, "SettingUp");
 const progressText$ = bindValue<string>(mod.id, "ProgressText");
 const resultThumbnail$ = bindValue<string>(mod.id, "ResultThumbnail");
+const cameraDebug$ = bindValue<boolean>(mod.id, "CameraDebug");
 
 export const ProgressPanel = (editor: boolean) => {
   const { translate } = useLocalization();
@@ -17,11 +18,12 @@ export const ProgressPanel = (editor: boolean) => {
   const inProcess = useValue(inProcess$);
   const settingUp = useValue(settingUp$);
   const resultThumbnail = useValue(resultThumbnail$);
+  const cameraDebug = useValue(cameraDebug$);
 
   if (!inProcess) return <></>;
 
   return (
-    <div className={classNames(styles.panel, settingUp && styles.fullScreen, resultThumbnail && styles.expanded)}>
+    <div className={classNames(styles.panel, settingUp && !cameraDebug && styles.fullScreen, resultThumbnail && styles.expanded)}>
       <div className={styles.header}>Asset Icon Creator</div>
       <div className={styles.content}>
         {resultThumbnail && <img src={resultThumbnail} />}

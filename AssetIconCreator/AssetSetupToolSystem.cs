@@ -54,10 +54,15 @@ namespace AssetIconCreator
 		private EditorToolUISystem _editorToolUISystem;
 		private AssetCreatorUISystem _assetCreatorUISystem;
 		private ProxyAction toolHotKey;
+		private ProxyAction flippedApplyAction;
+		private ProxyAction liftedApplyAction;
 		private PrefabBase selectedPrefab;
 		private GameMode gameMode;
 		private float currentFov;
 		private float simSpeed;
+		private bool flipPlacement;
+		private bool liftPlacement;
+		private float placementLift;
 
 		public override string toolID { get; } = nameof(AssetSetupToolSystem);
 
@@ -90,6 +95,8 @@ namespace AssetIconCreator
 			ScreenshotUtility = new ScreenshotUtility(_simulationSystem, _renderingSystem, _toolRaycastSystem, _cameraUpdateSystem, _prefabSystem, _defaultToolSystem, _toolSystem);
 
 			toolHotKey = Mod.Settings.GetAction(nameof(Setting.ToolKeyBinding));
+			flippedApplyAction = Mod.Settings.GetAction(nameof(Setting.FlippedApplyBinding));
+			liftedApplyAction = Mod.Settings.GetAction(nameof(Setting.LiftedApplyBinding));
 
 			toolHotKey.shouldBeEnabled = true;
 			toolHotKey.onInteraction += ToolHotKey_onInteraction;
@@ -119,6 +126,8 @@ namespace AssetIconCreator
 
 			selectedPrefab = null;
 			applyAction.shouldBeEnabled = true;
+			flippedApplyAction.shouldBeEnabled = true;
+			liftedApplyAction.shouldBeEnabled = true;
 		}
 
 		protected override void OnStopRunning()
@@ -127,6 +136,8 @@ namespace AssetIconCreator
 
 			selectedPrefab = null;
 			applyAction.shouldBeEnabled = false;
+			flippedApplyAction.shouldBeEnabled = false;
+			liftedApplyAction.shouldBeEnabled = false;
 		}
 
 		public override void InitializeRaycast()
@@ -161,11 +172,19 @@ namespace AssetIconCreator
 
 			if (GetRaycastResult(out var entity, out RaycastHit hit) && CheckIfReady(entity))
 			{
-				if (applyAction.WasPressedThisFrame())
+				// shift + click flips the placement 180° for assets with a flipped face,
+				// ctrl + click lifts the placement for assets whose mesh isn't centered at its base
+				var applyFlipped = flippedApplyAction.WasPressedThisFrame();
+				var applyLifted = liftedApplyAction.WasPressedThisFrame();
+
+				if (applyAction.WasPressedThisFrame() || applyFlipped || applyLifted)
 				{
 					gameMode = m_ToolSystem.actionMode;
 					currentFov = _cameraUpdateSystem.orbitCameraController.lens.FieldOfView;
 					simSpeed = _simulationSystem.selectedSpeed;
+
+					flipPlacement = applyFlipped;
+					liftPlacement = applyLifted;
 
 					if (Mod.Settings.ClearMap)
 					{
@@ -203,6 +222,20 @@ namespace AssetIconCreator
 
 			SetupWeatherAndTime();
 
+			// meshes that aren't centered at their base extend below the pivot and sink
+			// underground when placed; lift the placement so the whole mesh sits above ground
+			placementLift = 0f;
+
+			if (liftPlacement)
+			{
+				var prefabEntity = EntityManager.GetComponentData<PrefabRef>(entity).m_Prefab;
+
+				if (EntityManager.HasComponent<ObjectGeometryData>(prefabEntity))
+				{
+					placementLift = math.max(0f, -EntityManager.GetComponentData<ObjectGeometryData>(prefabEntity).m_Bounds.min.y);
+				}
+			}
+
 			SetupCamera(entity);
 
 			EntityManager.AddComponent<Deleted>(entity);
@@ -214,8 +247,33 @@ namespace AssetIconCreator
 		{
 			var transform = EntityManager.GetComponentData<Transform>(entity);
 			var prefab = EntityManager.GetComponentData<PrefabRef>(entity).m_Prefab;
+			var position = transform.m_Position + new float3(0f, placementLift, 0f);
 
-			CreateDefinitions(prefab, transform.m_Position, new quaternion(0, 1f, 0, 0.2f), RandomSeed.Next());
+			// decals keep their default orientation so they show upright in the top-down view
+			var rotation = IsDecal(entity) ? quaternion.identity : new quaternion(0, 1f, 0, 0.2f);
+
+			if (flipPlacement)
+			{
+				rotation = math.mul(rotation, quaternion.RotateY(math.PI));
+			}
+
+			CreateDefinitions(prefab, position, rotation, RandomSeed.Next());
+		}
+
+		private bool IsDecal(Entity entity)
+		{
+			if (_prefabSystem.GetPrefab<PrefabBase>(EntityManager.GetComponentData<PrefabRef>(entity)) is StaticObjectPrefab staticObject && staticObject.m_Meshes != null)
+			{
+				foreach (var meshInfo in staticObject.m_Meshes)
+				{
+					if (meshInfo.m_Mesh is RenderPrefabBase renderPrefab && renderPrefab.TryGet<DecalProperties>(out _))
+					{
+						return true;
+					}
+				}
+			}
+
+			return false;
 		}
 
 		private bool CheckIfReady(Entity entity)
@@ -275,11 +333,19 @@ namespace AssetIconCreator
 				.SetValue(camera, float.MaxValue);
 
 			camera.UpdateCamera();
-			camera.zoom = (EntityManager.HasComponent<Building>(entity) ? 120 : 40)
-				+ math.max((cullingInfo.m_Bounds.max.y - cullingInfo.m_Bounds.min.y) * 10f, (cullingInfo.m_Bounds.max.x - cullingInfo.m_Bounds.min.x) * 8f);
-			camera.rotation = new Vector3(20, -60, 0);
-			camera.pivot = (cullingInfo.m_Bounds.min + cullingInfo.m_Bounds.max) * 0.5f;
-			camera.position = (cullingInfo.m_Bounds.min + cullingInfo.m_Bounds.max) * 0.5f;
+
+			// decals are flat on the ground, so frame them top-down by their footprint
+			var isDecal = IsDecal(entity);
+			var size = isDecal
+				? math.max(cullingInfo.m_Bounds.max.x - cullingInfo.m_Bounds.min.x, cullingInfo.m_Bounds.max.z - cullingInfo.m_Bounds.min.z) * 8f
+				: math.max((cullingInfo.m_Bounds.max.y - cullingInfo.m_Bounds.min.y) * 10f, (cullingInfo.m_Bounds.max.x - cullingInfo.m_Bounds.min.x) * 8f);
+
+			camera.zoom = (EntityManager.HasComponent<Building>(entity) ? 120f : math.min(40f, size * 2f)) + size;
+			camera.rotation = isDecal ? new Vector3(90f, 0f, 0f) : new Vector3(20, -60, 0);
+			var focusPoint = ((cullingInfo.m_Bounds.min + cullingInfo.m_Bounds.max) * 0.5f) + new float3(0f, placementLift, 0f);
+
+			camera.pivot = focusPoint;
+			camera.position = focusPoint;
 			camera.UpdateCamera();
 		}
 

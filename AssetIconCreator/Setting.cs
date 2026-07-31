@@ -35,8 +35,19 @@ namespace AssetIconCreator
 		[SettingsUISection(MAIN_SECTION, MAIN_GROUP)]
 		public ProxyBinding ToolKeyBinding { get; set; }
 
+		[SettingsUIMouseBinding(BindingMouse.Left, nameof(FlippedApplyBinding), shift: true)]
+		[SettingsUIHidden]
+		public ProxyBinding FlippedApplyBinding { get; set; }
+
+		[SettingsUIMouseBinding(BindingMouse.Left, nameof(LiftedApplyBinding), ctrl: true)]
+		[SettingsUIHidden]
+		public ProxyBinding LiftedApplyBinding { get; set; }
+
 		[SettingsUISection(MAIN_SECTION, MAIN_GROUP)]
 		public bool ClearMap { get; set; } = true;
+
+		[SettingsUISection(MAIN_SECTION, MAIN_GROUP)]
+		public bool CameraDebug { get; set; }
 
 		[SettingsUISlider(min = 128, max = 1024, step = 128, scalarMultiplier = 1, unit = Unit.kInteger)]
 		[SettingsUISection(MAIN_SECTION, OUTPUT_GROUP)]
@@ -104,6 +115,9 @@ namespace AssetIconCreator
 				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.ClearMap)), "Clear Scene" },
 				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.ClearMap)), $"Clears the scene from any object other than the asset that you're making a icon for." },
 
+				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.CameraDebug)), "Camera view debugging" },
+				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.CameraDebug)), $"Disables the fullscreen cover shown while the screenshot is prepared, letting you see exactly what the camera sees." },
+
 				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.AutoSetIcon)), "Automatically set up UI Object component" },
 				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.AutoSetIcon)), $"Automatically add or update the UI Object component of the asset with the new icon." },
 
@@ -125,6 +139,14 @@ namespace AssetIconCreator
 				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.ToolKeyBinding)), "Tool hotkey" },
 				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.ToolKeyBinding)), $"Keyboard binding to toggle the tool" },
 				{ m_Setting.GetBindingKeyLocaleID(nameof(Setting.ToolKeyBinding)), "Activate Tool" },
+
+				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.FlippedApplyBinding)), "Flipped selection" },
+				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.FlippedApplyBinding)), $"Selects the asset with its placement rotated 180°, for assets that have a flipped face." },
+				{ m_Setting.GetBindingKeyLocaleID(nameof(Setting.FlippedApplyBinding)), "Flipped Selection" },
+
+				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.LiftedApplyBinding)), "Lifted selection" },
+				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.LiftedApplyBinding)), $"Selects the asset with its placement lifted so the whole mesh sits above ground, for assets whose mesh is not centered at its base." },
+				{ m_Setting.GetBindingKeyLocaleID(nameof(Setting.LiftedApplyBinding)), "Lifted Selection" },
 
 				{ m_Setting.GetBindingMapLocaleID(), "Asset Icon Creator" },
 			};

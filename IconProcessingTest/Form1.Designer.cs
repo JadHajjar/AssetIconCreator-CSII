@@ -31,6 +31,7 @@ namespace IconProcessingTest
 			this.topPanel = new System.Windows.Forms.FlowLayoutPanel();
 			this.buttonSelect = new System.Windows.Forms.Button();
 			this.buttonRefresh = new System.Windows.Forms.Button();
+			this.comboView = new System.Windows.Forms.ComboBox();
 			this.labelStatus = new System.Windows.Forms.Label();
 			this.pictureBoxSource = new System.Windows.Forms.PictureBox();
 			this.pictureBoxResult = new System.Windows.Forms.PictureBox();
@@ -44,6 +45,7 @@ namespace IconProcessingTest
 			//
 			this.topPanel.Controls.Add(this.buttonSelect);
 			this.topPanel.Controls.Add(this.buttonRefresh);
+			this.topPanel.Controls.Add(this.comboView);
 			this.topPanel.Controls.Add(this.labelStatus);
 			this.topPanel.Dock = System.Windows.Forms.DockStyle.Top;
 			this.topPanel.Location = new System.Drawing.Point(0, 0);
@@ -72,6 +74,16 @@ namespace IconProcessingTest
 			this.buttonRefresh.Text = "Refresh";
 			this.buttonRefresh.UseVisualStyleBackColor = true;
 			this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+			//
+			// comboView
+			//
+			this.comboView.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.comboView.Location = new System.Drawing.Point(239, 9);
+			this.comboView.Margin = new System.Windows.Forms.Padding(3, 9, 3, 3);
+			this.comboView.Name = "comboView";
+			this.comboView.Size = new System.Drawing.Size(170, 21);
+			this.comboView.TabIndex = 2;
+			this.comboView.SelectedIndexChanged += new System.EventHandler(this.comboView_SelectedIndexChanged);
 			//
 			// labelStatus
 			//
@@ -131,6 +143,7 @@ namespace IconProcessingTest
 		private System.Windows.Forms.FlowLayoutPanel topPanel;
 		private System.Windows.Forms.Button buttonSelect;
 		private System.Windows.Forms.Button buttonRefresh;
+		private System.Windows.Forms.ComboBox comboView;
 		private System.Windows.Forms.Label labelStatus;
 		private System.Windows.Forms.PictureBox pictureBoxSource;
 		private System.Windows.Forms.PictureBox pictureBoxResult;

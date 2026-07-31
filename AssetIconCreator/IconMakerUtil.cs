@@ -14,6 +14,11 @@ namespace AssetIconCreator
 
 		private static readonly WuQuantizer quantizer = new();
 
+#if DEBUG
+		// in debug builds, GetInvisibleMask records its intermediate maps for external inspection
+		internal static readonly Dictionary<string, float[,]> DebugMaps = new();
+#endif
+
 		internal static Image LoadImage(Bitmap bitmap)
 		{
 			if (bitmap == null)
@@ -250,6 +255,13 @@ namespace AssetIconCreator
 			var minBrightness = corners.Min(x => x.Luminance);
 			var minSaturation = corners.Min(x => x.Saturation);
 
+#if DEBUG
+			var debugHue = new float[width, height];
+			var debugBrightness = new float[width, height];
+			var debugSaturation = new float[width, height];
+			var debugCombined = new float[width, height];
+#endif
+
 			for (var x = 0; x < width; x++)
 			{
 				pixelMatchMap[x] = new();
@@ -271,12 +283,20 @@ namespace AssetIconCreator
 						continue;
 					}
 
-					var margin = 0.06f;
-					var hueScore = CalculateScore(minHue, maxHue, hue, margin * 3);
-					var brightnessScore = CalculateScore(minBrightness, maxBrightness, brightness, margin);
-					var saturationScore = CalculateScore(minSaturation, maxSaturation, saturation, margin);
+					const float ERROR_MARGIN = 0.06f;
+
+					var hueScore = CalculateScore((minHue + 0.5f) % 1, (maxHue + 0.5f) % 1, (hue + 0.5f) % 1, ERROR_MARGIN);
+					var brightnessScore = CalculateScore(minBrightness, maxBrightness, brightness, ERROR_MARGIN);
+					var saturationScore = CalculateScore(minSaturation, maxSaturation, saturation, ERROR_MARGIN);
 
 					pixelMap = hueScore * brightnessScore * saturationScore;
+
+#if DEBUG
+					debugHue[x, y] = hueScore;
+					debugBrightness[x, y] = brightnessScore;
+					debugSaturation[x, y] = saturationScore;
+					debugCombined[x, y] = pixelMap;
+#endif
 
 					if (pixelMap >= 1f)
 					{
@@ -344,7 +364,7 @@ namespace AssetIconCreator
 				}
 			}
 
-			var radius = Mod.Settings.CompressOutput 
+			var radius = Mod.Settings.CompressOutput
 				? Math.Max(0.5f, (height / 600f) + 0.4f)
 				: Math.Max(0.5f, (height / 600f) - 0.6f);
 
@@ -358,6 +378,31 @@ namespace AssetIconCreator
 					}
 				}
 			}
+
+#if DEBUG
+			var levelMap = new float[width, height];
+			var preFeatherMap = new float[width, height];
+			var finalMap = new float[width, height];
+
+			for (var x = 0; x < width; x++)
+			{
+				for (var y = 0; y < height; y++)
+				{
+					levelMap[x, y] = pixelMatchMap[x][y] / 5f;
+					preFeatherMap[x, y] = tempInvisibleMask[x][y] / 255f;
+					finalMap[x, y] = (invisibleMask[x].TryGetValue(y, out var b) ? b : (byte)0) / 255f;
+				}
+			}
+
+			DebugMaps.Clear();
+			DebugMaps["Hue Score"] = debugHue;
+			DebugMaps["Brightness Score"] = debugBrightness;
+			DebugMaps["Saturation Score"] = debugSaturation;
+			DebugMaps["Combined Score"] = debugCombined;
+			DebugMaps["Match Level"] = levelMap;
+			DebugMaps["Mask Before Feather"] = preFeatherMap;
+			DebugMaps["Final Mask"] = finalMap;
+#endif
 
 			return invisibleMask;
 
@@ -408,26 +453,36 @@ namespace AssetIconCreator
 
 		private static float CalculateScore(float minValue, float maxValue, float value, float errorMargin)
 		{
-			var range = maxValue - minValue;
-			var minRange = minValue - errorMargin;
-			var maxRange = maxValue + errorMargin;
+			if (minValue > maxValue)
+			{
+				var temp = maxValue;
+				maxValue = minValue;
+				minValue = temp;
+			}
 
-			if (value < minRange || value > maxRange)
+			if (value < (minValue - errorMargin) || value > (maxValue + errorMargin))
 			{
 				return 0f; // Outside the range including margin of error
 			}
 
-			if (value >= minValue || value <= maxValue)
+			if (value >= minValue && value <= maxValue)
 			{
-				return 1f; // Outside the range including margin of error
+				return 1f; // Inside the range excluding margin of error
 			}
 
+			float featheredScore;
 			if (value < minValue)
 			{
-				return (minValue - value) / errorMargin;
+				// Feather error margin distance from min value
+				featheredScore = (minValue - value) / errorMargin;
+			}
+			else
+			{
+				// Feather error margin distance from max value
+				featheredScore = (value - maxValue) / errorMargin;
 			}
 
-			return (value - maxValue) / errorMargin;
+			return 0.95f + Math.Min(0.05f, featheredScore);
 		}
 
 		private static Color ProcessPixel(Color color, float backgroundHue, bool magentaBackground)

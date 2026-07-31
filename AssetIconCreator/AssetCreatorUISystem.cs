@@ -20,6 +20,7 @@ namespace AssetIconCreator
 			CreateBinding("SettingUp", () => _assetSetupToolSystem.ScreenshotUtility?.SettingUp ?? false);
 			CreateBinding("ProgressText", () => _assetSetupToolSystem.ScreenshotUtility?.ProgressText);
 			CreateBinding("ResultThumbnail", () => _assetSetupToolSystem.ScreenshotUtility?.ResultThumbnail);
+			CreateBinding("CameraDebug", () => Mod.Settings.CameraDebug);
 		}
 	}
 }

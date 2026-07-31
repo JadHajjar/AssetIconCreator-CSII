@@ -66,14 +66,14 @@ namespace AssetIconCreator
 
 			_simulationSystem.selectedSpeed = 1f;
 
-			var currentTextures = LoadTextureInGame();
+			LoadTextureInGame();
 			var graphicSettings = SharedSettings.instance.graphics.qualitySettings;
 
 			SetGraphicSettings();
 
 			_renderingSystem.disableLodModels = true;
 
-			yield return new WaitForSeconds(1.5f);
+			yield return new WaitForSeconds(2.75f);
 
 			var ui = GameManager.instance.userInterface;
 			if (ui != null)
@@ -102,7 +102,7 @@ namespace AssetIconCreator
 
 			_simulationSystem.selectedSpeed = simSpeed;
 
-			UnloadTextureInGame(currentTextures);
+			UnloadTextureInGame();
 
 			_renderingSystem.disableLodModels = false;
 
@@ -120,7 +120,17 @@ namespace AssetIconCreator
 		{
 			Mod.Log.Info($"Processing Icon");
 
-			using var ms = new MemoryStream(texture2D.EncodeToPNG());
+			var data = texture2D.EncodeToPNG();
+
+#if DEBUG
+			var debugFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", nameof(AssetIconCreator));
+
+			Directory.CreateDirectory(debugFolder);
+
+			File.WriteAllBytes(Path.Combine(debugFolder, $"{prefab.name} Screenshot.png"), data);
+#endif
+
+			using var ms = new MemoryStream(data);
 			using var bitmap = new Bitmap(ms);
 
 			var sw = Stopwatch.StartNew();
@@ -167,21 +177,20 @@ namespace AssetIconCreator
 			{
 				Object.DestroyImmediate(texture2D);
 
-				var asset = localAssetDatabase.AddAsset(AssetDataPath.Create(Path.Combine("ModsData", nameof(AssetIconCreator), "Temp"), fileName, true, EscapeStrategy.None));
+				var asset = localAssetDatabase.AddAsset(AssetDataPath.Create(Mod.ContentFolder.Substring(EnvPath.kUserDataPath.Length + 1), fileName, true, EscapeStrategy.None));
 				var icon = $"assetdb://global/{asset.id.guid}";
 
 				if (Mod.Settings.AutoSetIcon)
 				{
 					if (prefab.TryGet<UIObject>(out var uIObject))
 					{
-						uIObject.m_Icon = icon;
+						prefab.Remove<UIObject>();
 					}
-					else
-					{
-						uIObject = prefab.AddComponent<UIObject>();
-						uIObject.m_Priority = 1;
-						uIObject.m_Icon = icon;
-					}
+
+					uIObject = prefab.AddComponent<UIObject>();
+					uIObject.m_Priority = uIObject?.m_Priority ?? 1;
+					uIObject.m_Group = uIObject?.m_Group;
+					uIObject.m_Icon = icon;
 
 					_prefabSystem.UpdatePrefab(prefab);
 
@@ -238,10 +247,8 @@ namespace AssetIconCreator
 			SharedSettings.instance.graphics.Apply();
 		}
 
-		private static Dictionary<string, Texture> LoadTextureInGame()
+		private static void LoadTextureInGame()
 		{
-			var dic = new Dictionary<string, Texture>();
-
 			foreach (var shaderProperty in new string[]
 			{
 				"colossal_TerrainGrassDiffuse",
@@ -249,22 +256,33 @@ namespace AssetIconCreator
 				"colossal_TerrainDirtDiffuse",
 				"colossal_TerrainDirtNormal",
 				"colossal_TerrainRockDiffuse",
-				"colossal_TerrainRockNormal"
+				"colossal_TerrainRockNormal",
+				"colossal_TerrainExtra1Diffuse",
+				"colossal_TerrainExtra1Normal",
+				"colossal_TerrainExtra2Diffuse",
+				"colossal_TerrainExtra2Normal",
+				"colossal_TerrainExtra3Diffuse",
+				"colossal_TerrainExtra3Normal",
+				"colossal_TerrainExtra4Diffuse",
+				"colossal_TerrainExtra4Normal"
 			})
 			{
-				dic[shaderProperty] = Shader.GetGlobalTexture(Shader.PropertyToID(shaderProperty));
-
 				Shader.SetGlobalTexture(Shader.PropertyToID(shaderProperty), Mod.Magenta);
 			}
 
-			return dic;
+			foreach (var group in new string[] { "Grass", "Dirt", "Rock" })
+			{
+				Shader.SetGlobalFloat(Shader.PropertyToID($"_TerrainLegacy{group}Texture"), 1f);
+			}
 		}
 
-		private static void UnloadTextureInGame(Dictionary<string, Texture> dictionary)
+		private void UnloadTextureInGame()
 		{
-			foreach (var kvp in dictionary)
+			var terrainMaterialSystem = _toolSystem.World.GetOrCreateSystemManaged<TerrainMaterialSystem>();
+
+			if (terrainMaterialSystem.currentTerrainRenderSettings != Unity.Entities.Entity.Null)
 			{
-				Shader.SetGlobalTexture(Shader.PropertyToID(kvp.Key), kvp.Value);
+				terrainMaterialSystem.ApplyRenderSettings();
 			}
 		}
 

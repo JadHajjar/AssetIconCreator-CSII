@@ -39,9 +39,9 @@ namespace AssetIconCreator
 					contentDir.Attributes |= FileAttributes.Hidden;
 				}
 
-				File.Copy(Path.Combine(Path.GetDirectoryName(asset.path), "AIC_Icon.png"), Path.Combine(contentDir.FullName, "AIC_Icon.png"), true);
+				File.Copy(Path.Combine(Path.GetDirectoryName(asset.path), "AIC_Icon.svg"), Path.Combine(contentDir.FullName, "AIC_Icon.svg"), true);
 
-				AssetIconCreatorEditorTool.Thumbnail = "coui://aic/AIC_Icon.png";
+				AssetIconCreatorEditorTool.Thumbnail = "coui://aic/AIC_Icon.svg";
 			}
 
 			Settings = new Setting(this);
@@ -53,6 +53,7 @@ namespace AssetIconCreator
 			AssetDatabase.global.LoadSettings(nameof(AssetIconCreator), Settings, new Setting(this));
 
 			updateSystem.UpdateAt<AssetSetupToolSystem>(SystemUpdatePhase.ToolUpdate);
+			updateSystem.UpdateAt<AssetSetupTooltipSystem>(SystemUpdatePhase.UITooltip);
 			updateSystem.UpdateAt<AssetCreatorUISystem>(SystemUpdatePhase.UIUpdate);
 
 			MainThreadDispatcher.RegisterUpdater(RegisterHostLocation);

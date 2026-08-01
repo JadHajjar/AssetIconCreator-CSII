@@ -19,8 +19,14 @@ namespace AssetIconCreator
 			CreateBinding("InProcess", () => _assetSetupToolSystem.ScreenshotUtility?.InProcess ?? false);
 			CreateBinding("SettingUp", () => _assetSetupToolSystem.ScreenshotUtility?.SettingUp ?? false);
 			CreateBinding("ProgressText", () => _assetSetupToolSystem.ScreenshotUtility?.ProgressText);
+			CreateBinding("PrefabName", () => _assetSetupToolSystem.ScreenshotUtility?.PrefabName);
 			CreateBinding("ResultThumbnail", () => _assetSetupToolSystem.ScreenshotUtility?.ResultThumbnail);
 			CreateBinding("CameraDebug", () => Mod.Settings.CameraDebug);
+			CreateBinding("SaveThumbnails", () => Mod.Settings.SaveThumbnailsPermanently);
+
+			CreateTrigger("Dismiss", () => _assetSetupToolSystem.ScreenshotUtility?.Dismiss());
+			CreateTrigger("SaveIcon", () => _assetSetupToolSystem.ScreenshotUtility?.SaveLastIcon());
+			CreateTrigger("ShowIcon", () => _assetSetupToolSystem.ScreenshotUtility?.ShowLastIcon());
 		}
 	}
 }

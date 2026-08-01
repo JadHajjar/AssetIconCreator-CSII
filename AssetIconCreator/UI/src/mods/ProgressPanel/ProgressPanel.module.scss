@@ -17,20 +17,31 @@
   overflow: hidden;
 
   animation: entry 0.2s;
-  transition: width 0.3s, height 0.3s;
+  transition:
+    width 0.3s,
+    height 0.3s;
 
   text-align: center;
 
   &.expanded {
     width: 400rem;
-    height: 330rem;
-
-    .header {
-      font-size: 16rem;
-    }
+    height: 400rem;
 
     .content {
       font-size: 20rem;
+    }
+
+    .progress span {
+      font-size: 16rem;
+    }
+
+    .prefabName {
+      margin-top: 10rem;
+      font-size: 12rem;
+      font-family: "Overpass Mono", monospace;
+      padding: 4rem;
+      border-radius: 4rem;
+      background-color: var(--selectedTextColorDarkDimmer);
     }
   }
 
@@ -58,11 +69,21 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    border-bottom-style: solid;
-    border-bottom-width: var(--stroke2);
-    border-bottom-color: var(--accentColorDark);
     padding: 8rem;
-    font-size: 20rem;
+    font-size: 16rem;
+  }
+
+  .headerBorder {
+    flex-shrink: 0;
+    height: var(--stroke2);
+    background-color: var(--accentColorDark);
+
+    > div {
+      height: 100%;
+      background-color: var(--accentColorNormal);
+      border-radius: 4rem;
+      transition: width 0.15s;
+    }
   }
 
   .content {
@@ -72,9 +93,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: 8rem;
-    font-size: 28rem;
+    font-size: 20rem;
+
+    > :first-child,
+    > :last-child {
+      flex-grow: 1;
+    }
 
     img {
       margin-bottom: 6rem;
@@ -82,5 +108,84 @@
       height: 256px;
       filter: drop-shadow(0px 0px 3rem rgba(0, 0, 0, 0.75));
     }
+
+    .progress {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spinner {
+      flex-shrink: 0;
+      width: 20rem;
+      height: 20rem;
+      margin-right: 12rem;
+      border-radius: 50%;
+      border: 3rem solid transparent;
+      border-top-color: var(--menuText1Normal);
+      animation: spin 0.75s linear infinite;
+    }
+
+    .footer {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: flex-end;
+      align-self: stretch;
+    }
+
+    .savedLabel {
+      flex-grow: 1;
+      text-align: left;
+      margin-bottom: 6rem;
+      margin-left: 6rem;
+      font-size: 14rem;
+      color: var(--menuText2Normal);
+    }
+
+    .saveButton {
+      width: 32rem;
+      height: 32rem;
+      margin-top: 10rem;
+      border-radius: 4rem;
+      background-color: rgba(0, 0, 0, 0.3);
+
+      img {
+        width: 20rem;
+        height: 20rem;
+        margin: 0;
+        filter: none;
+      }
+
+      &:hover {
+        background-color: rgba(200, 200, 200, 0.15);
+      }
+
+      &.selected,
+      &:active {
+        background-color: var(--accentColorNormal);
+
+        img {
+          filter: drop-shadow(0px 0px 1rem rgba(0, 0, 0, 0.5)) !important;
+        }
+      }
+    }
+  }
+
+  &.fullScreen .content .spinner {
+    width: 44rem;
+    height: 44rem;
+    border-width: 5rem;
+    margin-right: 24rem;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

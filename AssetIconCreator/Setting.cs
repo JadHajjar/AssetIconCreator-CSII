@@ -43,6 +43,10 @@ namespace AssetIconCreator
 		[SettingsUIHidden]
 		public ProxyBinding LiftedApplyBinding { get; set; }
 
+		[SettingsUIMouseBinding(BindingMouse.Left, nameof(FlippedLiftedApplyBinding), ctrl: true, shift: true)]
+		[SettingsUIHidden]
+		public ProxyBinding FlippedLiftedApplyBinding { get; set; }
+
 		[SettingsUISection(MAIN_SECTION, MAIN_GROUP)]
 		public bool ClearMap { get; set; } = true;
 
@@ -148,7 +152,15 @@ namespace AssetIconCreator
 				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.LiftedApplyBinding)), $"Selects the asset with its placement lifted so the whole mesh sits above ground, for assets whose mesh is not centered at its base." },
 				{ m_Setting.GetBindingKeyLocaleID(nameof(Setting.LiftedApplyBinding)), "Lifted Selection" },
 
+				{ m_Setting.GetOptionLabelLocaleID(nameof(Setting.FlippedLiftedApplyBinding)), "Flipped & lifted selection" },
+				{ m_Setting.GetOptionDescLocaleID(nameof(Setting.FlippedLiftedApplyBinding)), $"Selects the asset with its placement rotated 180° and lifted so the whole mesh sits above ground." },
+				{ m_Setting.GetBindingKeyLocaleID(nameof(Setting.FlippedLiftedApplyBinding)), "Flipped & Lifted Selection" },
+
 				{ m_Setting.GetBindingMapLocaleID(), "Asset Icon Creator" },
+
+				{ AssetSetupTooltipSystem.TOOLTIP_KEY, "Click on a placed asset to create an icon for it" },
+				{ AssetSetupTooltipSystem.FLIP_TOOLTIP_KEY, "Hold Shift to flip the asset 180°" },
+				{ AssetSetupTooltipSystem.LIFT_TOOLTIP_KEY, "Hold Ctrl to lift the asset above ground" },
 			};
 		}
 

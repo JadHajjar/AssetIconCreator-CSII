@@ -1,4 +1,5 @@
-﻿using Colossal.Serialization.Entities;
+﻿using Colossal.Entities;
+using Colossal.Serialization.Entities;
 
 using Game;
 using Game.Areas;
@@ -20,6 +21,7 @@ using Game.UI.Editor;
 using System;
 using System.Linq;
 
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -53,9 +55,11 @@ namespace AssetIconCreator
 		private PlanetarySystem _planetarySystem;
 		private EditorToolUISystem _editorToolUISystem;
 		private AssetCreatorUISystem _assetCreatorUISystem;
+		private EntityQuery _highlightedQuery;
 		private ProxyAction toolHotKey;
 		private ProxyAction flippedApplyAction;
 		private ProxyAction liftedApplyAction;
+		private ProxyAction flippedLiftedApplyAction;
 		private PrefabBase selectedPrefab;
 		private GameMode gameMode;
 		private float currentFov;
@@ -92,11 +96,14 @@ namespace AssetIconCreator
 			_editorToolUISystem = World.GetOrCreateSystemManaged<EditorToolUISystem>();
 			_assetCreatorUISystem = World.GetOrCreateSystemManaged<AssetCreatorUISystem>();
 
+			_highlightedQuery = GetEntityQuery(ComponentType.ReadOnly<Highlighted>());
+
 			ScreenshotUtility = new ScreenshotUtility(_simulationSystem, _renderingSystem, _toolRaycastSystem, _cameraUpdateSystem, _prefabSystem, _defaultToolSystem, _toolSystem);
 
 			toolHotKey = Mod.Settings.GetAction(nameof(Setting.ToolKeyBinding));
 			flippedApplyAction = Mod.Settings.GetAction(nameof(Setting.FlippedApplyBinding));
 			liftedApplyAction = Mod.Settings.GetAction(nameof(Setting.LiftedApplyBinding));
+			flippedLiftedApplyAction = Mod.Settings.GetAction(nameof(Setting.FlippedLiftedApplyBinding));
 
 			toolHotKey.shouldBeEnabled = true;
 			toolHotKey.onInteraction += ToolHotKey_onInteraction;
@@ -128,6 +135,7 @@ namespace AssetIconCreator
 			applyAction.shouldBeEnabled = true;
 			flippedApplyAction.shouldBeEnabled = true;
 			liftedApplyAction.shouldBeEnabled = true;
+			flippedLiftedApplyAction.shouldBeEnabled = true;
 		}
 
 		protected override void OnStopRunning()
@@ -138,6 +146,10 @@ namespace AssetIconCreator
 			applyAction.shouldBeEnabled = false;
 			flippedApplyAction.shouldBeEnabled = false;
 			liftedApplyAction.shouldBeEnabled = false;
+			flippedLiftedApplyAction.shouldBeEnabled = false;
+
+			EntityManager.AddComponent<BatchesUpdated>(_highlightedQuery);
+			EntityManager.RemoveComponent<Highlighted>(_highlightedQuery);
 		}
 
 		public override void InitializeRaycast()
@@ -162,29 +174,31 @@ namespace AssetIconCreator
 		{
 			applyMode = ApplyMode.Clear;
 
-			EntityManager.RemoveComponent<Highlighted>(SystemAPI.QueryBuilder().WithAll<Highlighted>().Build());
-			EntityManager.AddComponent<BatchesUpdated>(SystemAPI.QueryBuilder().WithAll<Highlighted>().Build());
+			var applied = false;
+			var entity = Entity.Null;
+			var raycastHit = !ScreenshotUtility.SettingUp && GetRaycastResult(out entity, out RaycastHit _) && CheckIfReady(entity);
+			var highlightedEntities = _highlightedQuery.ToEntityArray(Allocator.Temp);
+			var barrier = _toolOutputBarrier.CreateCommandBuffer();
 
-			if (ScreenshotUtility.SettingUp)
-			{
-				return base.OnUpdate(inputDeps);
-			}
-
-			if (GetRaycastResult(out var entity, out RaycastHit hit) && CheckIfReady(entity))
+			if (raycastHit)
 			{
 				// shift + click flips the placement 180° for assets with a flipped face,
-				// ctrl + click lifts the placement for assets whose mesh isn't centered at its base
+				// ctrl + click lifts the placement for assets whose mesh isn't centered at its base,
+				// ctrl + shift + click does both
+				var applyBoth = flippedLiftedApplyAction.WasPressedThisFrame();
 				var applyFlipped = flippedApplyAction.WasPressedThisFrame();
 				var applyLifted = liftedApplyAction.WasPressedThisFrame();
 
-				if (applyAction.WasPressedThisFrame() || applyFlipped || applyLifted)
+				if (applyAction.WasPressedThisFrame() || applyFlipped || applyLifted || applyBoth)
 				{
+					applied = true;
+
 					gameMode = m_ToolSystem.actionMode;
 					currentFov = _cameraUpdateSystem.orbitCameraController.lens.FieldOfView;
 					simSpeed = _simulationSystem.selectedSpeed;
 
-					flipPlacement = applyFlipped;
-					liftPlacement = applyLifted;
+					flipPlacement = applyFlipped || applyBoth;
+					liftPlacement = applyLifted || applyBoth;
 
 					if (Mod.Settings.ClearMap)
 					{
@@ -194,19 +208,65 @@ namespace AssetIconCreator
 					Setup(entity);
 
 					selectedPrefab = _prefabSystem.GetPrefab<PrefabBase>(EntityManager.GetComponentData<PrefabRef>(entity));
-
-					return base.OnUpdate(inputDeps);
 				}
+				else if (!EntityManager.HasComponent<Highlighted>(entity))
+				{
+					barrier.AddComponent<Highlighted>(entity);
+					barrier.AddComponent<BatchesUpdated>(entity);
 
-				EntityManager.AddComponent<Highlighted>(entity);
-				EntityManager.AddComponent<BatchesUpdated>(entity);
+					if (EntityManager.HasComponent<Game.Buildings.Lot>(entity))
+					{
+						if (EntityManager.TryGetBuffer<Game.Objects.SubObject>(entity, true, out var subObjects))
+						{
+							foreach (var item in subObjects)
+							{
+								barrier.AddComponent<Highlighted>(item.m_SubObject);
+								barrier.AddComponent<BatchesUpdated>(item.m_SubObject);
+							}
+						}
+
+						if (EntityManager.TryGetBuffer<Game.Net.SubLane>(entity, true, out var subLanes))
+						{
+							foreach (var item in subLanes)
+							{
+								barrier.AddComponent<Highlighted>(item.m_SubLane);
+								barrier.AddComponent<BatchesUpdated>(item.m_SubLane);
+							}
+						}
+
+						if (EntityManager.TryGetBuffer<Game.Areas.SubArea>(entity, true, out var subAreas))
+						{
+							foreach (var item in subAreas)
+							{
+								if (EntityManager.HasComponent<Batch>(item.m_Area))
+								{
+									barrier.AddComponent<Highlighted>(item.m_Area);
+									barrier.AddComponent<BatchesUpdated>(item.m_Area);
+								}
+							}
+						}
+					}
+				}
 			}
 
-			if (selectedPrefab != null)
+			for (var i = 0; i < highlightedEntities.Length; i++)
+			{
+				if (!applied && raycastHit && (entity == highlightedEntities[i] || (EntityManager.TryGetComponent<Owner>(highlightedEntities[i], out var owner) && owner.m_Owner == entity)))
+				{
+					continue;
+				}
+
+				barrier.RemoveComponent<Highlighted>(highlightedEntities[i]);
+				barrier.AddComponent<BatchesUpdated>(highlightedEntities[i]);
+			}
+
+			if (!applied && selectedPrefab != null)
 			{
 				applyMode = ApplyMode.Apply;
 
 				GameManager.instance.StartCoroutine(ScreenshotUtility.CaptureScreenshot(selectedPrefab, gameMode, currentFov, simSpeed));
+
+				selectedPrefab = null;
 			}
 
 			return base.OnUpdate(inputDeps);

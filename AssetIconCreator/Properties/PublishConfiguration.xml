@@ -38,17 +38,18 @@ Be sure to check the mod's options for more customization and extra features.
   <Screenshot Value="Properties/Screenshot03.jpg" />
   <Screenshot Value="Properties/Screenshot04.jpg" />
   <Tag Value="Code Mod" />
-  <ModVersion Value="1.4.0" />
+  <ModVersion Value="1.4.1" />
   <GameVersion Value="1.6.*" />
   <ChangeLog>
-# v1.4.0
+# v1.4.1
 ## Changes
-* Shift + Click when selecting an asset to flip it 180 degrees in case the asset is not correctly oriented.
-* Ctrl + Click when selecting an asset to raise it above ground in case it is sunken underground
-* Improved the camera position for small objects.
-* Improved the camera position for decals, now positioned in a top-down view.
-* Fixed streaking and incorrect background clipping.
-* Fixed grey colors being incorrectly clipped.
+* Added a tooltip for the new Shift/Ctrl actions.
+* Improved the highlighting of hovered assets.
+* Improved the interface slightly and added the name of the prefab that was processed.
+* Added a button to save the icon file if the auto-save setting is disabled.
+* Added a button to open the saved icon file's location if the auto-save  settiong is enabled.
+* The result preview dismissal can now be paused by hovering over the preview window.
+* Updated the mod's icon in the editor to match the game's style
 </ChangeLog>
   <ExternalLink Type="discord" Url="https://discord.gg/E4k8ZEtRxd" />
   <ExternalLink Type="github" Url="https://github.com/JadHajjar/AssetIconCreator-CSII" />

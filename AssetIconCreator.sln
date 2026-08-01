@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetIconCreator", "AssetIconCreator\AssetIconCreator.csproj", "{E90AB5BC-267A-4F58-A807-0C48C6B0A6EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IconProcessingTest", "IconProcessingTest\IconProcessingTest.csproj", "{E6A7D08A-D789-4860-A039-CEF0905738A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E90AB5BC-267A-4F58-A807-0C48C6B0A6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E90AB5BC-267A-4F58-A807-0C48C6B0A6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E90AB5BC-267A-4F58-A807-0C48C6B0A6EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6A7D08A-D789-4860-A039-CEF0905738A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6A7D08A-D789-4860-A039-CEF0905738A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6A7D08A-D789-4860-A039-CEF0905738A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6A7D08A-D789-4860-A039-CEF0905738A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

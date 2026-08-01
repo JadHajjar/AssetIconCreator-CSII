@@ -36,9 +36,14 @@ namespace AssetIconCreator
 		private readonly ToolSystem _toolSystem;
 		private readonly PrefabUISystem _prefabUISystem;
 
+		private string lastIconPath;
+		private string lastIconName;
+		private string lastPermanentPath;
+
 		public bool SettingUp { get; private set; }
 		public bool InProcess { get; private set; }
 		public string ProgressText { get; private set; }
+		public string PrefabName { get; private set; }
 		public string ResultThumbnail { get; private set; }
 
 		internal ScreenshotUtility(SimulationSystem simulationSystem, RenderingSystem renderingSystem, ToolRaycastSystem toolRaycastSystem, CameraUpdateSystem cameraUpdateSystem, PrefabSystem prefabSystem, DefaultToolSystem defaultToolSystem, ToolSystem toolSystem)
@@ -73,7 +78,7 @@ namespace AssetIconCreator
 
 			_renderingSystem.disableLodModels = true;
 
-			yield return new WaitForSeconds(2.75f);
+			yield return new WaitForSeconds(3f);
 
 			var ui = GameManager.instance.userInterface;
 			if (ui != null)
@@ -150,13 +155,18 @@ namespace AssetIconCreator
 
 				output.Save(Path.Combine(folder, fileName));
 
+				lastIconPath = Path.Combine(folder, fileName);
+				lastIconName = $"{prefab.GetType().Name}.{prefab.name}.png";
+
 				if (Mod.Settings.SaveThumbnailsPermanently)
 				{
 					var folderPermanent = Mod.Settings.ThumbnailsFolder;
 
 					Directory.CreateDirectory(folderPermanent);
 
-					output.Save(Path.Combine(folderPermanent, $"{prefab.GetType().Name}.{prefab.name}.png"));
+					lastPermanentPath = Path.Combine(folderPermanent, lastIconName);
+
+					output.Save(lastPermanentPath);
 				}
 			}
 			catch (System.Exception ex)
@@ -198,15 +208,47 @@ namespace AssetIconCreator
 				}
 
 				ProgressText = GetAssetName(prefab) + " Thumbnail";
+				PrefabName = prefab.name;
 				ResultThumbnail = "coui://aic/" + fileName;
-
-				Task.Run(async () =>
-				{
-					await Task.Delay(6000);
-
-					InProcess = false;
-				});
 			});
+		}
+
+		public void Dismiss()
+		{
+			InProcess = false;
+		}
+
+		public void SaveLastIcon()
+		{
+			if (lastIconPath is null || !File.Exists(lastIconPath))
+			{
+				return;
+			}
+
+			var folder = Mod.Settings.ThumbnailsFolder;
+			var target = Path.Combine(folder, lastIconName);
+
+			Directory.CreateDirectory(folder);
+			File.Copy(lastIconPath, target, true);
+
+			lastPermanentPath = target;
+
+			ShowInExplorer(target);
+		}
+
+		public void ShowLastIcon()
+		{
+			if (lastPermanentPath is null || !File.Exists(lastPermanentPath))
+			{
+				return;
+			}
+
+			ShowInExplorer(lastPermanentPath);
+		}
+
+		private static void ShowInExplorer(string path)
+		{
+			Process.Start("explorer.exe", $"/select,\"{Path.GetFullPath(path).Replace('/', '\\')}\"");
 		}
 
 		private static void SetGraphicSettings()
